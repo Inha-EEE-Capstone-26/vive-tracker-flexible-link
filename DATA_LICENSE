@@ -1,0 +1,5 @@
+Dataset samples, manifests, derived tables, and checksums in this repository are provided for academic verification of the associated paper artifacts.
+
+Raw experiment logs and full row-level datasets are not distributed in this first public package.
+
+If full processed datasets are released later, attach a separate data license and cite the release DOI or asset checksum in DATA_AVAILABILITY.md.

@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+data/raw/
+data/processed/
+*.log
+*.tmp
+.ipynb_checkpoints/
+graphify-out/
+.codegraph/
+.omo/

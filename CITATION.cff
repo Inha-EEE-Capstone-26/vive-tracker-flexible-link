@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Vive Tracker Flexible Link"
+message: "If you use this artifact package, please cite the associated paper."
+type: software
+authors:
+  - family-names: "REPLACE_WITH_FAMILY_NAME"
+    given-names: "REPLACE_WITH_GIVEN_NAME"
+date-released: "2026-06-14"
+license: MIT
+repository-code: "https://github.com/Inha-EEE-Capstone-26/vive-tracker-flexible-link"
