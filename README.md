@@ -2,7 +2,7 @@
 
 This repository packages the paper artifacts for a Vive Tracker-based position-prediction study on TPU flexible-link manipulators.
 
-It is intended for paper review, school submission, and public reproduction checks. The package keeps the paper/poster, selected figures, result tables, schemas, sample rows, fitted inference artifacts, optimizer-linkage source, and verification scripts together in one repository.
+It is intended for paper review, school submission, and public reproduction checks. The package keeps the paper/poster, full processed datasets, final 50-seed run evidence, selected figures, result tables, schemas, fitted inference artifacts, optimizer-linkage source, and verification scripts together in one repository.
 
 [Paper PDF](paper/paper.pdf) | [Poster PDF](paper/poster.pdf) | [Model artifacts](models/README.md) | [Optimizer source](optimizer/README.md) | [Data availability](DATA_AVAILABILITY.md) | [Claim boundary](docs/claim_boundary.md)
 
@@ -13,17 +13,18 @@ This repository is designed to let a reviewer inspect and rerun the included art
 Included:
 
 - paper and poster PDFs
-- sample rows for smoke checks
+- full processed 1-link and 2-link datasets
+- source-processed 2-link synthetic CSV inputs
+- sample rows for lightweight smoke checks
 - feature, label, unit, and coordinate-frame documentation
 - processed-data manifests and checksums
-- expected metric tables and selected paper figures
+- expected metric tables, final run outputs, and selected paper figures
 - fitted full-train inference artifacts
-- optimizer-linkage source, audit outputs, and a public sample-row smoke script
+- optimizer-linkage source, audit outputs, and a sample-row smoke script
 
 Excluded:
 
 - raw device logs
-- full private row-level datasets
 - local cache folders and failed experiment dumps
 - machine-specific tracking-service or workspace paths
 
@@ -35,6 +36,20 @@ Excluded:
 | 2-link | Density-aware local Kernel Ridge Regression | 0.7101 mm | 0.5193 mm | 1.8215 mm | 96.00% |
 
 `pass@2mm` is a settled-position prediction metric, not closed-loop control success. The optimizer result included here is a linkage smoke check, not a final robot-control benchmark.
+
+## Data And Final Runs
+
+The school-submission package includes the full processed datasets used for the reported paper artifacts:
+
+| Dataset | Rows | Role |
+|---|---:|---|
+| `data/processed/clean_dataset_1link_v2/` | 881 | Full 1-link clean package read by the final v1000-only 50-seed evaluation. |
+| `data/processed/clean_dataset_1link_v1000/` | 584 | Convenience v1000-only 1-link subset from `test-260524-1`. |
+| `data/processed/clean_dataset_2link_v1/` | 5,000 | Final 2-link synthetic-label package with Kabsch-aligned target-frame labels. |
+
+The 1-link final run reads `clean_dataset_1link_v2` and uses `split_mode=v1000_only_random`, which selects the 584 `test-260524-1` rows for the reported v1000 result. The final 2-link run reads `clean_dataset_2link_v1` and is backed by the synthetic source-processed CSVs in `data/source_processed/2link_synthetic/`.
+
+Metric provenance is stored in `results/final_runs/` as sanitized 50-seed outputs and run manifests. Raw device logs remain excluded.
 
 ## Main Evidence
 
@@ -56,9 +71,9 @@ The optimizer linkage package is included separately in [optimizer/](optimizer/R
 
 | Figure | Source data | Related claim | Expected output |
 |---|---|---|---|
-| 1-link contact sheet | `data/processed_manifest/manifest_1link_v1000.json`, `results/tables/paper_main_baseline_to_final_table.csv` | 1-link random-split settled-position prediction | `results/figures/1link_paper_figure_contact_sheet.png` |
-| 2-link contact sheet | `data/processed_manifest/manifest_2link_v1.json`, `results/tables/2link_baseline20_to_density_aware50_summary.csv` | 2-link random-split settled-position prediction with synthetic labels | `results/figures/2link_paper_figure_contact_sheet.png` |
-| Alignment residual | `data/processed_manifest/manifest_2link_v1.json` | Coordinate-frame registration evidence, not robot-base calibration | `results/figures/2link_alignment_residual.png` |
+| 1-link contact sheet | `data/processed/clean_dataset_1link_v1000/`, `results/tables/paper_main_baseline_to_final_table.csv` | 1-link random-split settled-position prediction | `results/figures/1link_paper_figure_contact_sheet.png` |
+| 2-link contact sheet | `data/processed/clean_dataset_2link_v1/`, `results/tables/2link_baseline20_to_density_aware50_summary.csv` | 2-link random-split settled-position prediction with synthetic labels | `results/figures/2link_paper_figure_contact_sheet.png` |
+| Alignment residual | `data/processed/clean_dataset_2link_v1/manifest.json` | Coordinate-frame registration evidence, not robot-base calibration | `results/figures/2link_alignment_residual.png` |
 | Model comparison | `results/tables/2link_baseline20_to_density_aware50_summary.csv`, `results/expected/expected_metrics.json` | Density-aware local KRR as the final 2-link model family | `results/figures/2link_model_comparison_summary.png` |
 
 The contact sheets used while assembling the paper are still included for traceability:
@@ -72,7 +87,7 @@ Full figure and table provenance is tracked in [docs/figures_and_tables.md](docs
 
 Fitted `.joblib` artifacts are included in [models/](models/README.md) for sample-row inference smoke checks.
 
-These are full-train inference artifact exports. They are not the original 50-seed evaluation objects used to produce the reported metrics. The reported numbers above remain tied to the repeated random-split evaluation outputs and expected-result tables.
+These are full-train inference artifact exports. They are not the original 50-seed evaluation objects used to produce the reported metrics. The reported numbers above remain tied to the repeated random-split evaluation outputs in `results/final_runs/` and the expected-result tables.
 
 ## Verify The Package
 
@@ -102,12 +117,15 @@ On Windows environments where GNU Make is installed as `mingw32-make`, use the s
 
 ```text
 paper/                   Paper and poster PDFs using stable English aliases.
-data/sample/             Small public-safe samples for smoke checks.
-data/processed_manifest/ Feature, label, and dataset manifest files.
+data/sample/             Small samples for lightweight smoke checks.
+data/processed/          Full processed row-level datasets for school-submission reproduction.
+data/source_processed/   Source-processed 2-link synthetic CSV inputs.
+data/processed_manifest/ Compatibility copies of final dataset manifests.
 data/schema/             Column dictionary and coordinate-frame notes.
 models/                  Fitted full-train inference artifacts and manifest.
 optimizer/               Submission optimizer source bundle, audit outputs, and smoke check.
 results/expected/        Expected metrics used by verification scripts.
+results/final_runs/      Final sanitized 50-seed run outputs and manifests.
 results/tables/          Derived result tables used by README and paper checks.
 results/figures/         Selected final figures and contact sheets.
 scripts/                 Single public verification entrypoint.
@@ -130,4 +148,4 @@ Use [CITATION.cff](CITATION.cff) as the machine-readable citation metadata for t
 
 ## License
 
-Code is licensed under MIT. Documentation and figures are licensed under CC BY 4.0 unless noted otherwise. Dataset samples and derived artifacts are governed by [DATA_LICENSE](DATA_LICENSE).
+Code is licensed under MIT. Documentation and figures are licensed under CC BY 4.0 unless noted otherwise. Processed datasets, samples, and derived artifacts are governed by [DATA_LICENSE](DATA_LICENSE).

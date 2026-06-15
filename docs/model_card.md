@@ -18,10 +18,11 @@ The repository includes full-train inference artifact exports in `models/`.
 - `models/1link_density_aware_local_krr_fulltrain.joblib`
 - `models/2link_density_aware_local_krr_fulltrain.joblib`
 
-These artifacts load the fitted forward-model behavior for sample-row prediction smoke checks. They are not the original 50-seed evaluation object; the reported metrics above remain tied to the repeated random-split evaluation outputs.
+These artifacts load the fitted forward-model behavior for sample-row prediction smoke checks. They are not the original 50-seed evaluation object; the reported metrics above remain tied to the repeated random-split evaluation outputs in `results/final_runs/`.
 
 ## Limitations
 
 - These metrics are random-split prediction results.
 - The included `.joblib` files are inference artifacts, not a full retraining pipeline.
+- The final run evidence is included under `results/final_runs/`, with sanitized manifests and row-level prediction CSVs.
 - The optimizer smoke check is not a closed-loop control benchmark.

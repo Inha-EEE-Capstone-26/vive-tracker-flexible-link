@@ -22,6 +22,34 @@ REQUIRED_FILES: Final[tuple[Path, ...]] = (
     Path("paper/poster.pdf"),
     Path("data/sample/sample_1link.csv"),
     Path("data/sample/sample_2link.csv"),
+    Path("data/processed/README.md"),
+    Path("data/processed/clean_dataset_1link_v2/dataset.csv"),
+    Path("data/processed/clean_dataset_1link_v2/feature_columns.txt"),
+    Path("data/processed/clean_dataset_1link_v2/label_columns.txt"),
+    Path("data/processed/clean_dataset_1link_v2/manifest.json"),
+    Path("data/processed/clean_dataset_1link_v2/session_summary.csv"),
+    Path("data/processed/clean_dataset_1link_v2/plots/clean_dataset_1link_v2_overview.png"),
+    Path("data/processed/clean_dataset_1link_v2/plots/clean_dataset_1link_v2_axis_mapped_projections.png"),
+    Path("data/processed/clean_dataset_1link_v2/plots/clean_dataset_1link_v2_axis_mapped_3d.png"),
+    Path("data/processed/clean_dataset_1link_v2/plots/clean_dataset_1link_v2_frame_diagnostics.png"),
+    Path("data/processed/clean_dataset_1link_v1000/dataset.csv"),
+    Path("data/processed/clean_dataset_1link_v1000/feature_columns.txt"),
+    Path("data/processed/clean_dataset_1link_v1000/label_columns.txt"),
+    Path("data/processed/clean_dataset_1link_v1000/manifest.json"),
+    Path("data/processed/clean_dataset_1link_v1000/session_summary.csv"),
+    Path("data/processed/clean_dataset_1link_v1000/plots/1link_v1000_feature_quality.png"),
+    Path("data/processed/clean_dataset_1link_v1000/plots/1link_v1000_overview.png"),
+    Path("data/processed/clean_dataset_1link_v1000/plots/1link_v1000_target_label_relation.png"),
+    Path("data/processed/clean_dataset_2link_v1/dataset.csv"),
+    Path("data/processed/clean_dataset_2link_v1/feature_columns.txt"),
+    Path("data/processed/clean_dataset_2link_v1/label_columns.txt"),
+    Path("data/processed/clean_dataset_2link_v1/manifest.json"),
+    Path("data/processed/clean_dataset_2link_v1/session_summary.csv"),
+    Path("data/processed/clean_dataset_2link_v1/plots/clean_dataset_2link_v1_axis_relation_before_after.png"),
+    Path("data/processed/clean_dataset_2link_v1/plots/clean_dataset_2link_v1_feature_quality_overview.png"),
+    Path("data/processed/clean_dataset_2link_v1/plots/clean_dataset_2link_v1_preprocessing_flow.png"),
+    Path("data/source_processed/2link_synthetic/synthetic_only_target_plan_5000.csv"),
+    Path("data/source_processed/2link_synthetic/synthetic_only_supervised_samples_5000.csv"),
     Path("data/processed_manifest/manifest_1link_v1000.json"),
     Path("data/processed_manifest/manifest_2link_v1.json"),
     Path("data/schema/data_dictionary.md"),
@@ -31,6 +59,19 @@ REQUIRED_FILES: Final[tuple[Path, ...]] = (
     Path("results/expected/expected_metrics.json"),
     Path("results/tables/paper_main_baseline_to_final_table.csv"),
     Path("results/tables/2link_baseline20_to_density_aware50_summary.csv"),
+    Path("results/final_runs/README.md"),
+    Path("results/final_runs/1link_v1000_density_aware_local_krr_50seed/README.md"),
+    Path("results/final_runs/1link_v1000_density_aware_local_krr_50seed/run_manifest.json"),
+    Path("results/final_runs/1link_v1000_density_aware_local_krr_50seed/seed_split_metrics.csv"),
+    Path("results/final_runs/1link_v1000_density_aware_local_krr_50seed/repeated_summary.csv"),
+    Path("results/final_runs/1link_v1000_density_aware_local_krr_50seed/test_predictions.csv"),
+    Path("results/final_runs/1link_v1000_density_aware_local_krr_50seed/validation_density_grid.csv"),
+    Path("results/final_runs/1link_v1000_density_aware_local_krr_50seed/candidate_comparison.csv"),
+    Path("results/final_runs/1link_v1000_density_aware_local_krr_50seed/figures/v1000_final_50seed_candidate_comparison.png"),
+    Path("results/final_runs/2link_density_aware_local_krr_50seed/README.md"),
+    Path("results/final_runs/2link_density_aware_local_krr_50seed/run_manifest.json"),
+    Path("results/final_runs/2link_density_aware_local_krr_50seed/seed_split_metrics.csv"),
+    Path("results/final_runs/2link_density_aware_local_krr_50seed/test_predictions.csv"),
     Path("models/README.md"),
     Path("models/model_manifest.json"),
     Path("models/1link_density_aware_local_krr_fulltrain.joblib"),
@@ -97,10 +138,38 @@ FIGURES: Final[tuple[Path, ...]] = (
     Path("results/figures/2link_model_comparison_summary.png"),
 )
 
+PROCESSED_DATASETS: Final[dict[str, dict[str, object]]] = {
+    "data/processed/clean_dataset_1link_v2/dataset.csv": {
+        "rows": 881,
+        "source_counts": {"test-260523-2": 297, "test-260524-1": 584},
+        "manifest": "data/processed/clean_dataset_1link_v2/manifest.json",
+    },
+    "data/processed/clean_dataset_1link_v1000/dataset.csv": {
+        "rows": 584,
+        "source_counts": {"test-260524-1": 584},
+        "manifest": "data/processed/clean_dataset_1link_v1000/manifest.json",
+    },
+    "data/processed/clean_dataset_2link_v1/dataset.csv": {
+        "rows": 5000,
+        "source_counts": {"2link_test-260525-1": 5000},
+        "manifest": "data/processed/clean_dataset_2link_v1/manifest.json",
+    },
+}
+
 
 def count_csv_rows(path: Path) -> int:
     with path.open("r", encoding="utf-8", newline="") as handle:
         return sum(1 for _row in csv.reader(handle)) - 1
+
+
+def csv_source_counts(path: Path) -> tuple[int, dict[str, int]]:
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    counts: dict[str, int] = {}
+    for row in rows:
+        source_group = row["source_group"]
+        counts[source_group] = counts.get(source_group, 0) + 1
+    return len(rows), counts
 
 
 def sha256_file(path: Path) -> str:
@@ -200,6 +269,28 @@ def source_inventory_hash_entries_valid() -> bool:
     return bool(lines) and all(len(line.split(maxsplit=1)[0]) == 64 for line in lines)
 
 
+def verify_processed_datasets() -> list[str]:
+    errors: list[str] = []
+    for rel_path, expected in PROCESSED_DATASETS.items():
+        path = ROOT / rel_path
+        if not path.exists():
+            errors.append(f"missing {rel_path}")
+            continue
+        row_count, source_counts = csv_source_counts(path)
+        expected_rows = expected["rows"]
+        expected_source_counts = expected["source_counts"]
+        if row_count != expected_rows:
+            errors.append(f"{rel_path}: expected {expected_rows} rows, got {row_count}")
+        if source_counts != expected_source_counts:
+            errors.append(f"{rel_path}: expected source counts {expected_source_counts}, got {source_counts}")
+
+        manifest_path = ROOT / str(expected["manifest"])
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("total_clean_rows") != expected_rows:
+            errors.append(f"{manifest_path.relative_to(ROOT).as_posix()}: total_clean_rows mismatch")
+    return errors
+
+
 def verify_metrics() -> list[str]:
     expected = json.loads((ROOT / "results/expected/expected_metrics.json").read_text(encoding="utf-8"))
     table_path = ROOT / "results/tables/main_results.csv"
@@ -216,6 +307,52 @@ def verify_metrics() -> list[str]:
         wanted = float(expected["systems"][expected_key]["mean_3d_error_mm"])
         if actual != wanted:
             errors.append(f"{table_key} mean mismatch: expected {wanted}, got {actual}")
+    return errors
+
+
+def average_test_metric(path: Path, field: str) -> float:
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = [row for row in csv.DictReader(handle) if row["split"] == "test"]
+    if len(rows) != 50:
+        raise RuntimeError(f"{path.relative_to(ROOT)} must contain 50 test rows, got {len(rows)}")
+    return sum(float(row[field]) for row in rows) / len(rows)
+
+
+def verify_final_run_evidence() -> list[str]:
+    expected = json.loads((ROOT / "results/expected/expected_metrics.json").read_text(encoding="utf-8"))
+    errors: list[str] = []
+
+    one_manifest_path = ROOT / "results/final_runs/1link_v1000_density_aware_local_krr_50seed/run_manifest.json"
+    two_manifest_path = ROOT / "results/final_runs/2link_density_aware_local_krr_50seed/run_manifest.json"
+    one_manifest = json.loads(one_manifest_path.read_text(encoding="utf-8"))
+    two_manifest = json.loads(two_manifest_path.read_text(encoding="utf-8"))
+
+    if one_manifest["script"] != "models/evaluate_v2_gpu_density_aware_local_krr.py":
+        errors.append("1-link final run script mismatch")
+    if one_manifest["args"]["split_mode"] != "v1000_only_random":
+        errors.append("1-link final run split_mode mismatch")
+    if one_manifest["dataset"]["rows"] != 881:
+        errors.append("1-link final run dataset row mismatch")
+    if one_manifest["dataset"]["source_counts"].get("test-260524-1") != 584:
+        errors.append("1-link final run v1000 source count mismatch")
+
+    one_mean = float(one_manifest["best_test_summary"]["mean_3d_error_mm_mean"])
+    if abs(one_mean - float(expected["systems"]["1link"]["mean_3d_error_mm"])) > 5e-5:
+        errors.append(f"1-link final run mean mismatch: {one_mean}")
+
+    if two_manifest["script"] != "models/experiments/evaluate_2link_density_aware_local_krr.py":
+        errors.append("2-link final run script mismatch")
+    if two_manifest["dataset"]["rows"] != 5000:
+        errors.append("2-link final run dataset row mismatch")
+    if two_manifest["dataset"].get("synthetic_label") is not True:
+        errors.append("2-link final run synthetic_label mismatch")
+
+    two_mean = average_test_metric(
+        ROOT / "results/final_runs/2link_density_aware_local_krr_50seed/seed_split_metrics.csv",
+        "mean_3d_error_mm",
+    )
+    if abs(two_mean - float(expected["systems"]["2link"]["mean_3d_error_mm"])) > 5e-5:
+        errors.append(f"2-link final run mean mismatch: {two_mean}")
     return errors
 
 
@@ -300,11 +437,16 @@ def main() -> int:
         "public_text_leaks": public_text_leaks(),
         "privacy_scan_errors": privacy_scan_errors(),
         "checksum_mismatches": checksum_mismatches(),
+        "processed_dataset_errors": verify_processed_datasets(),
         "metric_mismatches": verify_metrics(),
+        "final_run_evidence_errors": verify_final_run_evidence(),
         "model_prediction_smoke_errors": model_prediction_smoke_errors(),
         "source_inventory_hash_entries_valid": source_inventory_hash_entries_valid(),
         "sample_1link_rows": count_csv_rows(ROOT / "data/sample/sample_1link.csv"),
         "sample_2link_rows": count_csv_rows(ROOT / "data/sample/sample_2link.csv"),
+        "processed_1link_v2_rows": count_csv_rows(ROOT / "data/processed/clean_dataset_1link_v2/dataset.csv"),
+        "processed_1link_v1000_rows": count_csv_rows(ROOT / "data/processed/clean_dataset_1link_v1000/dataset.csv"),
+        "processed_2link_v1_rows": count_csv_rows(ROOT / "data/processed/clean_dataset_2link_v1/dataset.csv"),
         "expected_1link_clean_rows": expected["systems"]["1link"]["clean_rows"],
         "expected_2link_clean_rows": expected["systems"]["2link"]["clean_rows"],
         "figures": figure_records(),
@@ -317,7 +459,9 @@ def main() -> int:
         or report["public_text_leaks"]
         or report["privacy_scan_errors"]
         or report["checksum_mismatches"]
+        or report["processed_dataset_errors"]
         or report["metric_mismatches"]
+        or report["final_run_evidence_errors"]
         or report["model_prediction_smoke_errors"]
         or not report["source_inventory_hash_entries_valid"]
         or report["sample_1link_rows"] > 5

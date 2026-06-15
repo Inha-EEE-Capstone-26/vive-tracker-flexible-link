@@ -8,25 +8,25 @@ The optimizer portion is included to show how the learned forward model was conn
 
 ```text
 optimizer/
-├─ optimizer_linkage_smoke.py          Public sample-only smoke check.
+├─ optimizer_linkage_smoke.py          Lightweight sample-row smoke check.
 ├─ source/                             Original 2-link optimizer-linkage source and audit code.
 ├─ results/                            Final optimizer-linkage summary, row-level smoke results, and audit note.
 ├─ figures/                            ML-to-optimizer pipeline figure.
 └─ legacy_1link/                       Earlier RandomForest motor-angle optimizer source and artifact.
 ```
 
-## What To Run In This Public Package
+## What To Run First
 
 ```bash
 python optimizer/optimizer_linkage_smoke.py
 ```
 
-This command uses only public package files:
+This command uses the lightweight package files:
 
 - `models/2link_density_aware_local_krr_fulltrain.joblib`
 - `data/sample/sample_2link.csv`
 
-It evaluates public sample rows as candidate command states, predicts the Vive position with the fitted 2-link model artifact, and selects the candidate with the smallest predicted target error.
+It evaluates sample rows as candidate command states, predicts the Vive position with the fitted 2-link model artifact, and selects the candidate with the smallest predicted target error.
 
 ## Original 2-Link Source
 
@@ -38,7 +38,7 @@ The original 2-link optimizer-linkage code is preserved under `optimizer/source/
 - `_twolink_common.py`: shared audit utilities.
 - `motor_angle_optimizer.py`: earlier motor-angle optimizer implementation retained for source traceability.
 
-The original 2-link scripts expect the full internal clean dataset layout. This public repository does not include the full row-level dataset, so the public runnable smoke path is `optimizer/optimizer_linkage_smoke.py`.
+The original 2-link scripts expect `data/processed/clean_dataset_2link_v1/`, which is included in this school-submission package. The top-level `optimizer/optimizer_linkage_smoke.py` remains the fastest smoke path because it runs against five sample rows and finishes quickly.
 
 ## Results Included
 

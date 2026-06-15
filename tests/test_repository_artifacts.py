@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import shutil
 import subprocess
@@ -16,7 +17,7 @@ class RepositoryArtifactsTest(unittest.TestCase):
         for path in ROOT.rglob("__pycache__"):
             shutil.rmtree(path)
 
-    def test_public_safe_dataset_layout_when_repo_is_built(self) -> None:
+    def test_submission_dataset_layout_when_repo_is_built(self) -> None:
         required_paths = [
             ROOT / "README.md",
             ROOT / "DATA_AVAILABILITY.md",
@@ -25,6 +26,17 @@ class RepositoryArtifactsTest(unittest.TestCase):
             ROOT / "paper" / "poster.pdf",
             ROOT / "data" / "sample" / "sample_1link.csv",
             ROOT / "data" / "sample" / "sample_2link.csv",
+            ROOT / "data" / "processed" / "clean_dataset_1link_v2" / "dataset.csv",
+            ROOT / "data" / "processed" / "clean_dataset_1link_v2" / "manifest.json",
+            ROOT / "data" / "processed" / "clean_dataset_1link_v2" / "session_summary.csv",
+            ROOT / "data" / "processed" / "clean_dataset_1link_v1000" / "dataset.csv",
+            ROOT / "data" / "processed" / "clean_dataset_1link_v1000" / "manifest.json",
+            ROOT / "data" / "processed" / "clean_dataset_1link_v1000" / "session_summary.csv",
+            ROOT / "data" / "processed" / "clean_dataset_2link_v1" / "dataset.csv",
+            ROOT / "data" / "processed" / "clean_dataset_2link_v1" / "manifest.json",
+            ROOT / "data" / "processed" / "clean_dataset_2link_v1" / "session_summary.csv",
+            ROOT / "data" / "source_processed" / "2link_synthetic" / "synthetic_only_target_plan_5000.csv",
+            ROOT / "data" / "source_processed" / "2link_synthetic" / "synthetic_only_supervised_samples_5000.csv",
             ROOT / "data" / "processed_manifest" / "manifest_1link_v1000.json",
             ROOT / "data" / "processed_manifest" / "manifest_2link_v1.json",
             ROOT / "data" / "schema" / "data_dictionary.md",
@@ -49,9 +61,63 @@ class RepositoryArtifactsTest(unittest.TestCase):
 
         missing = [str(path.relative_to(ROOT)) for path in required_paths if not path.exists()]
 
-        self.assertEqual(missing, [], "paper repo must include public-safe required artifacts")
+        self.assertEqual(missing, [], "school submission repo must include required reproduction artifacts")
         self.assertFalse((ROOT / "data" / "processed" / "dataset.csv").exists())
         self.assertFalse((ROOT / "data" / "raw").exists())
+
+    def test_submission_processed_dataset_counts_when_full_data_is_included(self) -> None:
+        expected = {
+            "data/processed/clean_dataset_1link_v2/dataset.csv": {
+                "rows": 881,
+                "source_counts": {"test-260523-2": 297, "test-260524-1": 584},
+            },
+            "data/processed/clean_dataset_1link_v1000/dataset.csv": {
+                "rows": 584,
+                "source_counts": {"test-260524-1": 584},
+            },
+            "data/processed/clean_dataset_2link_v1/dataset.csv": {
+                "rows": 5000,
+                "source_counts": {"2link_test-260525-1": 5000},
+            },
+        }
+
+        for rel_path, wanted in expected.items():
+            with (ROOT / rel_path).open("r", encoding="utf-8-sig", newline="") as handle:
+                rows = list(csv.DictReader(handle))
+            source_counts: dict[str, int] = {}
+            for row in rows:
+                key = row["source_group"]
+                source_counts[key] = source_counts.get(key, 0) + 1
+
+            self.assertEqual(len(rows), wanted["rows"], rel_path)
+            self.assertEqual(source_counts, wanted["source_counts"], rel_path)
+
+    def test_final_run_evidence_when_submission_package_is_built(self) -> None:
+        expected_metrics = json.loads((ROOT / "results" / "expected" / "expected_metrics.json").read_text(encoding="utf-8"))
+        one_link_manifest = json.loads(
+            (
+                ROOT
+                / "results/final_runs/1link_v1000_density_aware_local_krr_50seed/run_manifest.json"
+            ).read_text(encoding="utf-8")
+        )
+        two_link_metrics = ROOT / "results/final_runs/2link_density_aware_local_krr_50seed/seed_split_metrics.csv"
+
+        self.assertEqual(one_link_manifest["script"], "models/evaluate_v2_gpu_density_aware_local_krr.py")
+        self.assertEqual(one_link_manifest["args"]["split_mode"], "v1000_only_random")
+        self.assertEqual(one_link_manifest["dataset"]["rows"], 881)
+        self.assertEqual(one_link_manifest["dataset"]["source_counts"]["test-260524-1"], 584)
+        self.assertAlmostEqual(
+            float(one_link_manifest["best_test_summary"]["mean_3d_error_mm_mean"]),
+            float(expected_metrics["systems"]["1link"]["mean_3d_error_mm"]),
+            places=4,
+        )
+
+        with two_link_metrics.open("r", encoding="utf-8-sig", newline="") as handle:
+            test_rows = [row for row in csv.DictReader(handle) if row["split"] == "test"]
+        mean_error = sum(float(row["mean_3d_error_mm"]) for row in test_rows) / len(test_rows)
+
+        self.assertEqual(len(test_rows), 50)
+        self.assertAlmostEqual(mean_error, float(expected_metrics["systems"]["2link"]["mean_3d_error_mm"]), places=4)
 
     def test_claim_boundary_text_when_public_reader_checks_repo(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -60,7 +126,8 @@ class RepositoryArtifactsTest(unittest.TestCase):
 
         self.assertIn("position prediction metric, not closed-loop control success", readme)
         self.assertIn("optimizer linkage smoke", claim_boundary)
-        self.assertIn("does not include raw experiment logs or full row-level datasets", data_readme)
+        self.assertIn("full processed datasets", data_readme)
+        self.assertIn("v1000_only_random", claim_boundary)
         self.assertIn("synthetic", claim_boundary.lower())
 
     def test_readme_figure_gallery_when_public_reader_checks_provenance(self) -> None:

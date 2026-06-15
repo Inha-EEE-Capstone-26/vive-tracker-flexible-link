@@ -4,7 +4,14 @@ __pycache__/
 .ruff_cache/
 .venv/
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/README.md
+!data/processed/clean_dataset_1link_v2/
+!data/processed/clean_dataset_1link_v2/**
+!data/processed/clean_dataset_1link_v1000/
+!data/processed/clean_dataset_1link_v1000/**
+!data/processed/clean_dataset_2link_v1/
+!data/processed/clean_dataset_2link_v1/**
 *.log
 *.tmp
 .ipynb_checkpoints/

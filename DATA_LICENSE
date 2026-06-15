@@ -1,5 +1,5 @@
-Dataset samples, manifests, derived tables, and checksums in this repository are provided for academic verification of the associated paper artifacts.
+Processed datasets, dataset samples, manifests, derived tables, final run outputs, and checksums in this repository are provided for academic verification and school-submission reproduction of the associated paper artifacts.
 
-Raw experiment logs and full row-level datasets are not distributed in this first public package.
+The included processed datasets are derived research artifacts, not raw device logs. They may be used to inspect, verify, and reproduce the submitted artifact package with attribution to the project.
 
-If full processed datasets are released later, attach a separate data license and cite the release DOI or asset checksum in DATA_AVAILABILITY.md.
+Raw experiment logs, private notes, local cache folders, failed experiment dumps, and machine-specific tracking-service paths are not distributed in this repository.
