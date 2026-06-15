@@ -27,6 +27,8 @@ The dataset also depends on a coordinate-frame alignment step before the learned
 
 This residual check supports the 2-link synthetic-label coordinate registration. It is evidence for the data-preparation pipeline, not a robot-base calibration claim.
 
+The optimizer linkage package is included separately in [optimizer/](optimizer/README.md). It preserves the original 2-link optimizer-linkage scripts, audit evidence, legacy 1-link optimizer source, and a public sample-row smoke check that shows how the fitted forward model is used inside a candidate-search objective.
+
 ## Figure Provenance
 
 | Figure | Source data | Related claim | Expected output |
@@ -89,6 +91,7 @@ data/sample/             Small public-safe samples for smoke checks.
 data/processed_manifest/ Feature, label, and dataset manifest files.
 data/schema/             Column dictionary and coordinate-frame notes.
 models/                  Fitted full-train inference artifacts and manifest.
+optimizer/               Submission optimizer source bundle, audit outputs, and smoke check.
 results/expected/        Expected metrics used by verification scripts.
 results/tables/          Derived result tables used by README and paper checks.
 results/figures/         Selected final figures and contact sheets.

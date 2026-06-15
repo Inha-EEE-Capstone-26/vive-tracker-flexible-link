@@ -35,6 +35,25 @@ REQUIRED_FILES: Final[tuple[Path, ...]] = (
     Path("models/model_manifest.json"),
     Path("models/1link_density_aware_local_krr_fulltrain.joblib"),
     Path("models/2link_density_aware_local_krr_fulltrain.joblib"),
+    Path("optimizer/README.md"),
+    Path("optimizer/requirements.txt"),
+    Path("optimizer/optimizer_linkage_smoke.py"),
+    Path("optimizer/source/motor_angle_optimizer.py"),
+    Path("optimizer/source/optimizer_linkage_2link_smoke.py"),
+    Path("optimizer/source/evaluate_2link_density_aware_local_krr.py"),
+    Path("optimizer/source/audit_2link_optimizer_linkage.py"),
+    Path("optimizer/source/_twolink_common.py"),
+    Path("optimizer/results/README.md"),
+    Path("optimizer/results/optimizer_linkage_smoke_summary.json"),
+    Path("optimizer/results/optimizer_linkage_smoke_results.csv"),
+    Path("optimizer/results/optimizer_linkage_audit.md"),
+    Path("optimizer/figures/2link_ml_to_optimizer_pipeline.png"),
+    Path("optimizer/legacy_1link/motor_angle_optimizer.py"),
+    Path("optimizer/legacy_1link/random_forest_model.pkl"),
+    Path("optimizer/legacy_1link/data/processed/clean_dataset_v2/feature_columns.txt"),
+    Path("optimizer/legacy_1link/results/summary.json"),
+    Path("optimizer/legacy_1link/results/summary.csv"),
+    Path("optimizer/legacy_1link/results/batch_from_attached_full_summary.txt"),
 )
 
 FORBIDDEN_PATH_PARTS: Final[tuple[str, ...]] = (
@@ -124,7 +143,7 @@ def public_text_leaks() -> list[str]:
     matches: list[str] = []
     for path in ROOT.rglob("*"):
         rel = path.relative_to(ROOT).as_posix()
-        if ".git/" in rel or not path.is_file() or path.suffix.lower() in {".pdf", ".png", ".joblib"}:
+        if ".git/" in rel or not path.is_file() or path.suffix.lower() in {".pdf", ".png", ".joblib", ".pkl"}:
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
         if any(marker in text for marker in leak_markers):
@@ -136,7 +155,7 @@ def privacy_scan_errors() -> list[str]:
     errors: list[str] = []
     for path in ROOT.rglob("*"):
         rel = path.relative_to(ROOT).as_posix()
-        if ".git/" in rel or not path.is_file() or path.suffix.lower() in {".pdf", ".png", ".joblib"}:
+        if ".git/" in rel or not path.is_file() or path.suffix.lower() in {".pdf", ".png", ".joblib", ".pkl"}:
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
         lowered = text.lower()

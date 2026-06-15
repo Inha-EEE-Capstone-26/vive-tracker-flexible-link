@@ -33,6 +33,18 @@ class RepositoryArtifactsTest(unittest.TestCase):
             ROOT / "models" / "model_manifest.json",
             ROOT / "models" / "1link_density_aware_local_krr_fulltrain.joblib",
             ROOT / "models" / "2link_density_aware_local_krr_fulltrain.joblib",
+            ROOT / "optimizer" / "README.md",
+            ROOT / "optimizer" / "optimizer_linkage_smoke.py",
+            ROOT / "optimizer" / "source" / "motor_angle_optimizer.py",
+            ROOT / "optimizer" / "source" / "optimizer_linkage_2link_smoke.py",
+            ROOT / "optimizer" / "source" / "audit_2link_optimizer_linkage.py",
+            ROOT / "optimizer" / "source" / "_twolink_common.py",
+            ROOT / "optimizer" / "results" / "optimizer_linkage_smoke_summary.json",
+            ROOT / "optimizer" / "results" / "optimizer_linkage_smoke_results.csv",
+            ROOT / "optimizer" / "results" / "optimizer_linkage_audit.md",
+            ROOT / "optimizer" / "figures" / "2link_ml_to_optimizer_pipeline.png",
+            ROOT / "optimizer" / "legacy_1link" / "motor_angle_optimizer.py",
+            ROOT / "optimizer" / "legacy_1link" / "random_forest_model.pkl",
         ]
 
         missing = [str(path.relative_to(ROOT)) for path in required_paths if not path.exists()]
@@ -116,6 +128,47 @@ class RepositoryArtifactsTest(unittest.TestCase):
         scripts = sorted(path.name for path in (ROOT / "scripts").glob("*.py"))
 
         self.assertEqual(scripts, ["verify_package.py"])
+
+    def test_optimizer_linkage_source_when_packaged_for_submission(self) -> None:
+        source_files = [
+            "optimizer/source/motor_angle_optimizer.py",
+            "optimizer/source/optimizer_linkage_2link_smoke.py",
+            "optimizer/source/audit_2link_optimizer_linkage.py",
+            "optimizer/source/_twolink_common.py",
+            "optimizer/legacy_1link/motor_angle_optimizer.py",
+        ]
+        compile_sources = subprocess.run(
+            [sys.executable, "-m", "py_compile", *source_files],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        optimizer_smoke = subprocess.run(
+            [
+                sys.executable,
+                "optimizer/optimizer_linkage_smoke.py",
+                "--max-targets",
+                "2",
+                "--candidate-limit",
+                "5",
+            ],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        korean_paths = [
+            path.relative_to(ROOT).as_posix()
+            for path in ROOT.rglob("*")
+            if any("\uac00" <= char <= "\ud7a3" for char in path.relative_to(ROOT).as_posix())
+        ]
+
+        self.assertEqual(korean_paths, [])
+        self.assertEqual(compile_sources.returncode, 0, compile_sources.stderr + compile_sources.stdout)
+        self.assertEqual(optimizer_smoke.returncode, 0, optimizer_smoke.stderr + optimizer_smoke.stdout)
+        self.assertIn('"targets_evaluated": 2', optimizer_smoke.stdout)
+        self.assertIn('"candidate_count": 5', optimizer_smoke.stdout)
 
     def test_privacy_scan_when_packaged_for_public_release(self) -> None:
         forbidden_roots = [
