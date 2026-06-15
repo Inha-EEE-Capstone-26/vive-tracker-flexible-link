@@ -79,7 +79,6 @@ FORBIDDEN_PRIVACY_MARKERS: Final[tuple[str, ...]] = (
     "E:" + SLASH + "01_Workspace",
     "E:" + SLASH + SLASH + "01_Workspace",
     "01_Workspace" + "_sync",
-    "kih" + "yun",
     "api" + "_key",
     "api" + "-key",
     "sec" + "ret",

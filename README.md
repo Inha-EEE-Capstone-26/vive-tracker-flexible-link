@@ -1,12 +1,33 @@
-# Vive Tracker Flexible Link
+# Vive Tracker Flexible-Link Reproduction Package
 
-This repository contains the public reproduction package for a Vive Tracker-based position-prediction study on TPU flexible-link manipulators.
+This repository packages the paper artifacts for a Vive Tracker-based position-prediction study on TPU flexible-link manipulators.
 
-It is meant to be read alongside the paper and poster, with the main figures, result tables, sample data, fitted inference artifacts, and verification scripts kept in one lightweight public package.
+It is intended for paper review, school submission, and public reproduction checks. The package keeps the paper/poster, selected figures, result tables, schemas, sample rows, fitted inference artifacts, optimizer-linkage source, and verification scripts together in one repository.
 
-[Paper PDF](paper/paper.pdf) | [Poster PDF](paper/poster.pdf) | [Model artifacts](models/README.md) | [Claim boundary](docs/claim_boundary.md) | [Data availability](DATA_AVAILABILITY.md)
+[Paper PDF](paper/paper.pdf) | [Poster PDF](paper/poster.pdf) | [Model artifacts](models/README.md) | [Optimizer source](optimizer/README.md) | [Data availability](DATA_AVAILABILITY.md) | [Claim boundary](docs/claim_boundary.md)
 
-## At A Glance
+## Reproducibility Scope
+
+This repository is designed to let a reviewer inspect and rerun the included artifact checks without depending on private local paths.
+
+Included:
+
+- paper and poster PDFs
+- sample rows for smoke checks
+- feature, label, unit, and coordinate-frame documentation
+- processed-data manifests and checksums
+- expected metric tables and selected paper figures
+- fitted full-train inference artifacts
+- optimizer-linkage source, audit outputs, and a public sample-row smoke script
+
+Excluded:
+
+- raw device logs
+- full private row-level datasets
+- local cache folders and failed experiment dumps
+- machine-specific tracking-service or workspace paths
+
+## Results At A Glance
 
 | System | Final model | Mean 3D error | Median | P95 | Pass@2mm |
 |---|---|---:|---:|---:|---:|
@@ -28,6 +49,8 @@ The dataset also depends on a coordinate-frame alignment step before the learned
 This residual check supports the 2-link synthetic-label coordinate registration. It is evidence for the data-preparation pipeline, not a robot-base calibration claim.
 
 The optimizer linkage package is included separately in [optimizer/](optimizer/README.md). It preserves the original 2-link optimizer-linkage scripts, audit evidence, legacy 1-link optimizer source, and a public sample-row smoke check that shows how the fitted forward model is used inside a candidate-search objective.
+
+![2-link ML-to-optimizer pipeline](optimizer/figures/2link_ml_to_optimizer_pipeline.png)
 
 ## Figure Provenance
 
@@ -53,6 +76,14 @@ These are full-train inference artifact exports. They are not the original 50-se
 
 ## Verify The Package
 
+Install the lightweight Python requirements first:
+
+```bash
+pip install -r requirements.txt
+```
+
+Then run:
+
 ```bash
 python scripts/verify_package.py
 python -m unittest discover -s tests
@@ -66,22 +97,6 @@ make test
 ```
 
 On Windows environments where GNU Make is installed as `mingw32-make`, use the same targets with `mingw32-make`.
-
-## Data Availability
-
-This is a public-safe artifact package. It does not include raw experiment logs or full row-level datasets.
-
-Included:
-
-- sample rows for smoke checks
-- feature and label schemas
-- processed-data manifests
-- checksums
-- expected metric tables
-- selected paper figures
-- fitted inference artifacts
-
-See [DATA_AVAILABILITY.md](DATA_AVAILABILITY.md), [data/README.md](data/README.md), and [docs/data_card.md](docs/data_card.md).
 
 ## Repository Layout
 
@@ -100,9 +115,18 @@ tests/                   Artifact and claim-boundary tests.
 docs/                    Paper summary, data/model cards, provenance, and claim boundary.
 ```
 
+## Contributors
+
+This project was developed by the Inha University EEE Capstone 2026 team under the `Inha-EEE-Capstone-26` organization.
+
+- [@kihyunnn](https://github.com/kihyunnn) - repository maintainer and artifact packaging
+- Inha EEE Capstone 2026 team - experiment, documentation, and project contributions
+
+GitHub's automatic contributor graph only lists accounts with commits in this repository. Additional team member accounts can be added here once their public GitHub usernames are confirmed.
+
 ## Citation
 
-Use [CITATION.cff](CITATION.cff) as the machine-readable citation stub. Update author and venue fields before public release.
+Use [CITATION.cff](CITATION.cff) as the machine-readable citation metadata for this artifact package.
 
 ## License
 
